@@ -1,2 +1,2 @@
 # Dunk.Tools.Monitoring
-Provides monitoring utilities for .NET framework applications
+Provides monitoring utilities for .NET applications
