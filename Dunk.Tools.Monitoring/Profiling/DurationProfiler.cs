@@ -62,6 +62,7 @@ namespace Dunk.Tools.Monitoring.Profiling
         /// <see cref="Tuple{T1, T2}.Item2"/> represents any exception that occurred whilst attempting to complete the action.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="operation"/> was null.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "CA1031:Support generic catch for operation")]
         public static Tuple<long, Exception> GetUnsafeOperationDurationInMilliSeconds(Action operation)
         {
             if (operation == null)
@@ -84,6 +85,7 @@ namespace Dunk.Tools.Monitoring.Profiling
             }
         }
 
+
         /// <summary>
         /// Executes a specified unsafe action and returns the time taken to complete as a <see cref="TimeSpan"/>
         /// and any exception that might have occurred.
@@ -95,6 +97,7 @@ namespace Dunk.Tools.Monitoring.Profiling
         /// <see cref="Tuple{T1, T2}.Item2"/> represents any exception that occurred whilst attempting to complete the action.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="operation"/> was null.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "CA1031:Support generic catch for operation")]
         public static Tuple<TimeSpan, Exception> GetUnsafeOperationDurationTimeSpan(Action operation)
         {
             if (operation == null)

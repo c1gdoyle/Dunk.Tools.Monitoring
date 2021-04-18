@@ -1,4 +1,5 @@
-﻿using Dunk.Tools.Monitoring.State;
+﻿using System;
+using Dunk.Tools.Monitoring.State;
 
 namespace Dunk.Tools.Monitoring.Extensions
 {
@@ -20,8 +21,15 @@ namespace Dunk.Tools.Monitoring.Extensions
         /// half-open state this method will move it to a closed state. If the circuit breaker
         /// is currently in an open state it will move to a half-opens state.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="circuitBreaker"/> was null.</exception>
         public static bool TryClose(this CircuitBreaker circuitBreaker)
         {
+            if(circuitBreaker == null)
+            {
+                throw new ArgumentNullException(nameof(circuitBreaker),
+                    $"Unable to Try-Close, {nameof(circuitBreaker)} parameter cannot be null");
+            }
+
             if (circuitBreaker.IsHalfOpen)
             {
                 circuitBreaker.Close();
@@ -46,8 +54,15 @@ namespace Dunk.Tools.Monitoring.Extensions
         /// half-open state this method will move it to an open state. If the circuit breaker
         /// is currently in a closed state it will move to a half-open state.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="circuitBreaker"/> was null.</exception>
         public static bool TryOpen(this CircuitBreaker circuitBreaker)
         {
+            if (circuitBreaker == null)
+            {
+                throw new ArgumentNullException(nameof(circuitBreaker),
+                    $"Unable to Try-Open, {nameof(circuitBreaker)} parameter cannot be null");
+            }
+
             if (circuitBreaker.IsHalfOpen)
             {
                 circuitBreaker.Open();

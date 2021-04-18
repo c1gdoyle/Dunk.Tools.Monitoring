@@ -10,9 +10,10 @@ namespace Dunk.Tools.Monitoring.Test.State
         [Test]
         public void CircuitBreakerInitialises()
         {
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-
-            Assert.IsNotNull(circuitBreaker);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                Assert.IsNotNull(circuitBreaker);
+            }
         }
 
         [Test]
@@ -30,9 +31,19 @@ namespace Dunk.Tools.Monitoring.Test.State
         [Test]
         public void CircuitBreakerStateIsClosedByDefault()
         {
-            var circuitBreaker = new CircuitBreaker(5, 60000);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                Assert.IsTrue(circuitBreaker.IsClosed);
+            }
+        }
 
-            Assert.IsTrue(circuitBreaker.IsClosed);
+        [Test]
+        public void CircuitBreakerAttemptCallThrowsIfOperationIsNull()
+        {
+            using(var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                Assert.Throws<ArgumentNullException>(() => circuitBreaker.AttemptCall(null));
+            }
         }
 
         [Test]
@@ -40,18 +51,19 @@ namespace Dunk.Tools.Monitoring.Test.State
         {
             const string customErrorMessage = "CircuitBreaker operation failed";
 
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-
             Action failedOperation = () =>
             {
                 throw new Exception(customErrorMessage);
             };
 
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
 
-            Assert.AreEqual(3, circuitBreaker.FailureCount);
+                Assert.AreEqual(3, circuitBreaker.FailureCount);
+            }
         }
 
         [Test]
@@ -59,19 +71,20 @@ namespace Dunk.Tools.Monitoring.Test.State
         {
             const string customErrorMessage = "CircuitBreaker operation failed";
 
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-
             Action failedOperation = () =>
             {
                 throw new Exception(customErrorMessage);
             };
 
-            circuitBreaker.AttemptCall(failedOperation);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                circuitBreaker.AttemptCall(failedOperation);
 
-            var error = circuitBreaker.ExceptionFromLastAttempt;
+                var error = circuitBreaker.ExceptionFromLastAttempt;
 
-            Assert.IsNotNull(error);
-            Assert.AreEqual(customErrorMessage, error.Message);
+                Assert.IsNotNull(error);
+                Assert.AreEqual(customErrorMessage, error.Message);
+            }
         }
 
         [Test]
@@ -79,20 +92,21 @@ namespace Dunk.Tools.Monitoring.Test.State
         {
             const string customErrorMessage = "CircuitBreaker operation failed";
 
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-
             Action failedOperation = () =>
             {
                 throw new Exception(customErrorMessage);
             };
 
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
 
-            circuitBreaker.Close();
+                circuitBreaker.Close();
 
-            Assert.AreEqual(0, circuitBreaker.FailureCount);
+                Assert.AreEqual(0, circuitBreaker.FailureCount);
+            }
         }
 
         [Test]
@@ -100,21 +114,22 @@ namespace Dunk.Tools.Monitoring.Test.State
         {
             const string customErrorMessage = "CircuitBreaker operation failed";
 
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-
             Action failedOperation = () =>
             {
                 throw new Exception(customErrorMessage);
             };
 
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
-            circuitBreaker.AttemptCall(failedOperation);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
 
-            Assert.IsTrue(circuitBreaker.IsOpen);
+                Assert.IsTrue(circuitBreaker.IsOpen);
+            }
         }
 
         [Test]
@@ -127,11 +142,13 @@ namespace Dunk.Tools.Monitoring.Test.State
                 operationWasAttempted = true;
             };
 
-            var circuitBreaker = new CircuitBreaker(5, 60000);
-            circuitBreaker.Open();
-            circuitBreaker.AttemptCall(successfulOperation);
+            using (var circuitBreaker = new CircuitBreaker(5, 60000))
+            {
+                circuitBreaker.Open();
+                circuitBreaker.AttemptCall(successfulOperation);
 
-            Assert.IsFalse(operationWasAttempted);
+                Assert.IsFalse(operationWasAttempted);
+            }
         }
 
         [Test]
@@ -144,13 +161,15 @@ namespace Dunk.Tools.Monitoring.Test.State
                 operationWasAttempted = true;
             };
 
-            var circuitBreaker = new CircuitBreaker(5, 100);
-            circuitBreaker.Open();
-            System.Threading.Thread.Sleep(200);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
+                System.Threading.Thread.Sleep(200);
 
-            circuitBreaker.AttemptCall(successfulOperation);
+                circuitBreaker.AttemptCall(successfulOperation);
 
-            Assert.IsTrue(operationWasAttempted);
+                Assert.IsTrue(operationWasAttempted);
+            }
         }
 
         [Test]
@@ -163,30 +182,33 @@ namespace Dunk.Tools.Monitoring.Test.State
                 throw new Exception(customErrorMessage);
             };
 
-            var circuitBreaker = new CircuitBreaker(5, 100);
-            circuitBreaker.Open();
-            System.Threading.Thread.Sleep(200);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
+                System.Threading.Thread.Sleep(200);
 
-            circuitBreaker.AttemptCall(failedOperation);
+                circuitBreaker.AttemptCall(failedOperation);
 
-            Assert.IsTrue(circuitBreaker.IsOpen);
+                Assert.IsTrue(circuitBreaker.IsOpen);
+            }
         }
 
         [Test]
         public void CircuitBreakerInHalfOpenStateMovesToClosedStateIfOperationSucceeds()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
-
             Action successfulOperation = () =>
             {
             };
 
-            circuitBreaker.Open();
-            System.Threading.Thread.Sleep(200);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
+                System.Threading.Thread.Sleep(200);
 
-            circuitBreaker.AttemptCall(successfulOperation);
+                circuitBreaker.AttemptCall(successfulOperation);
 
-            Assert.IsTrue(circuitBreaker.IsClosed);
+                Assert.IsTrue(circuitBreaker.IsClosed);
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Dunk.Tools.Monitoring.State
     /// See
     /// https://docs.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
     /// </remarks>
-    public class CircuitBreaker
+    public sealed class CircuitBreaker : IDisposable
     {
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -91,8 +91,15 @@ namespace Dunk.Tools.Monitoring.State
         /// The circuit breaker instance after attempting to execute the specified operation.
         /// If action threw an exception it will be stored in the <see cref="CircuitBreaker.ExceptionFromLastAttempt"/>.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="operation"/> was null.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "CA1031:Support generic catch for operation")]
         public CircuitBreaker AttemptCall(Action operation)
         {
+            if(operation == null)
+            {
+                throw new ArgumentNullException(nameof(operation),
+                    $"Unable to attempt-call, {nameof(operation)} parameter cannot be null");
+            }
             _exceptionFromLastAttempt = null;
             using (_lock.WriteLock())
             {
@@ -173,5 +180,12 @@ namespace Dunk.Tools.Monitoring.State
                 _currentState = new HalfOpenState(this);
             }
         }
+
+        #region IDisposable Members
+        public void Dispose()
+        {
+            _lock?.Dispose();
+        }
+        #endregion IDisposable Members
     }
 }

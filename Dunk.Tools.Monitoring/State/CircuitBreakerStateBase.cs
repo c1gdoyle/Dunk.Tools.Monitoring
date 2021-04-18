@@ -42,7 +42,7 @@ namespace Dunk.Tools.Monitoring.State
         }
 
         /// <inheritdoc />
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "CA1716:Allow parameter name error")]
         public virtual void ActOnExpection(Exception error)
         {
             //by default just increment the failure encounter

@@ -1,4 +1,5 @@
-﻿using Dunk.Tools.Monitoring.Extensions;
+﻿using System;
+using Dunk.Tools.Monitoring.Extensions;
 using Dunk.Tools.Monitoring.State;
 using NUnit.Framework;
 
@@ -8,135 +9,161 @@ namespace Dunk.Tools.Monitoring.Test.Extensions
     public class CircuitBreakerExtensionsTests
     {
         [Test]
+        public void CircuitBreakerTryCloseThrowsIfCircuitBreakerIsNull()
+        {
+            CircuitBreaker circuitBreaker = null;
+            Assert.Throws<ArgumentNullException>(() => circuitBreaker.TryClose());
+        }
+
+        [Test]
         public void CircuitBreakerTryCloseMovesToClosedStateIfCurrentlyClosed()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Close();
 
-            circuitBreaker.Close();
+                circuitBreaker.TryClose();
 
-            circuitBreaker.TryClose();
-
-            Assert.IsTrue(circuitBreaker.IsClosed);
+                Assert.IsTrue(circuitBreaker.IsClosed);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryCloseMovesToClosedStateIfCurrentlyHalfOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.MoveToHalfOpenState();
 
-            circuitBreaker.MoveToHalfOpenState();
+                circuitBreaker.TryClose();
 
-            circuitBreaker.TryClose();
-
-            Assert.IsTrue(circuitBreaker.IsClosed);
+                Assert.IsTrue(circuitBreaker.IsClosed);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryCloseMovesToHalfOpenStateIfCurrentlyOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
 
-            circuitBreaker.Open();
+                circuitBreaker.TryClose();
 
-            circuitBreaker.TryClose();
-
-            Assert.IsTrue(circuitBreaker.IsHalfOpen);
+                Assert.IsTrue(circuitBreaker.IsHalfOpen);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryCloseReturnsTrueIfStateIsCurrentlyClsoed()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Close();
 
-            circuitBreaker.Close();
-
-            Assert.IsTrue(circuitBreaker.TryClose());
+                Assert.IsTrue(circuitBreaker.TryClose());
+            }
         }
 
         [Test]
         public void CircuitBreakerTryCloseReturnsTrueIfStateIsCurrentlyHalfOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.MoveToHalfOpenState();
 
-            circuitBreaker.MoveToHalfOpenState();
-
-            Assert.IsTrue(circuitBreaker.TryClose());
+                Assert.IsTrue(circuitBreaker.TryClose());
+            }
         }
 
         [Test]
         public void CircuitBreakerTryCloseReturnsFalseIfStateIsCurrentlyOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
 
-            circuitBreaker.Open();
+                Assert.IsFalse(circuitBreaker.TryClose());
+            }
+        }
 
-            Assert.IsFalse(circuitBreaker.TryClose());
+        [Test]
+        public void CircuitBreakerTryOpenThrowsIfCircuitBreakerIsNull()
+        {
+            CircuitBreaker circuitBreaker = null;
+            Assert.Throws<ArgumentNullException>(() => circuitBreaker.TryOpen());
         }
 
         [Test]
         public void CircuitBreakerTryOpenMovesToHalfOpenStateIfCurrentlyClosed()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Close();
 
-            circuitBreaker.Close();
+                circuitBreaker.TryOpen();
 
-            circuitBreaker.TryOpen();
-
-            Assert.IsTrue(circuitBreaker.IsHalfOpen);
+                Assert.IsTrue(circuitBreaker.IsHalfOpen);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryOpenMovesToOpenStateIfCurrentlyHalfOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.MoveToHalfOpenState();
 
-            circuitBreaker.MoveToHalfOpenState();
+                circuitBreaker.TryOpen();
 
-            circuitBreaker.TryOpen();
-
-            Assert.IsTrue(circuitBreaker.IsOpen);
+                Assert.IsTrue(circuitBreaker.IsOpen);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryOpenMovesToOpenStateIfCurrentlyOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
 
-            circuitBreaker.Open();
+                circuitBreaker.TryOpen();
 
-            circuitBreaker.TryOpen();
-
-            Assert.IsTrue(circuitBreaker.IsOpen);
+                Assert.IsTrue(circuitBreaker.IsOpen);
+            }
         }
 
         [Test]
         public void CircuitBreakerTryOpenReturnsFalseIfStateIsCurrentlyClsoed()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Close();
 
-            circuitBreaker.Close();
-
-            Assert.IsFalse(circuitBreaker.TryOpen());
+                Assert.IsFalse(circuitBreaker.TryOpen());
+            }
         }
 
         [Test]
         public void CircuitBreakerTryOpenReturnsTrueIfStateIsCurrentlyHalfOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.MoveToHalfOpenState();
 
-            circuitBreaker.MoveToHalfOpenState();
-
-            Assert.IsTrue(circuitBreaker.TryOpen());
+                Assert.IsTrue(circuitBreaker.TryOpen());
+            }
         }
 
         [Test]
         public void CircuitBreakerTryOpenReturnsTrueIfStateIsCurrentlyOpen()
         {
-            var circuitBreaker = new CircuitBreaker(5, 100);
+            using (var circuitBreaker = new CircuitBreaker(5, 100))
+            {
+                circuitBreaker.Open();
 
-            circuitBreaker.Open();
-
-            Assert.IsTrue(circuitBreaker.TryOpen());
+                Assert.IsTrue(circuitBreaker.TryOpen());
+            }
         }
     }
 }
