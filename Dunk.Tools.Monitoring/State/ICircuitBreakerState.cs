@@ -37,6 +37,7 @@ namespace Dunk.Tools.Monitoring.State
         /// attempt to call the operation represented by the CircuitBreaker.
         /// </summary>
         /// <param name="error">The exception raised by the unsuccessful operation.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "CA1716:Allow parameter name error")]
         void ActOnExpection(Exception error);
 
         /// <summary>

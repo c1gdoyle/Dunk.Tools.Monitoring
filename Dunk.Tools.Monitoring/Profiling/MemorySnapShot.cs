@@ -4,7 +4,7 @@
     /// Represents a snap shot of allocated memory
     /// of a process.
     /// </summary>
-    public struct MemorySnapShot
+    public class MemorySnapShot
     {
         /// <summary>
         /// Gets or sets the total number of bytes allocated
